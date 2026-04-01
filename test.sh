@@ -1,17 +1,25 @@
 #!/bin/bash
 
-# Создаем файл
-echo "server_address: localhost" > config.yaml
-echo "status: debug" >> config.yaml
+echo "--- Инициализация системы ---"
+REPORT="daily_report.txt"
 
-echo "--- ДО ЗАМЕНЫ ---"
-cat config.yaml
+# 1. Собираем данные (записываем в файл)
+echo "Дата проверки: $(date)" > $REPORT
+echo "Версия ядра: $(uname -r)" >> $REPORT
+echo "Свободно памяти: $(free -m | awk '/Mem:/ {print $4 " MB"}')" >> $REPORT
 
-# 1. Меняем адрес (используем запятые вместо слэшей, так надежнее с адресами)
-sed -i 's,localhost,production-server.com,' config.yaml
+# 2. Имитируем лог ошибок
+echo "ERROR: Database connection timeout" >> $REPORT
+echo "INFO: System backup completed" >> $REPORT
 
-# 2. Меняем статус
-sed -i 's/debug/active/' config.yaml
+# 3. Фильтруем только важное для отчета
+echo "=== ИТОГОВЫЙ ОТЧЕТ ДЛЯ НАЧАЛЬСТВА ==="
+grep "Дата" $REPORT
+grep "Свободно" $REPORT
 
-echo -e "\n--- ПОСЛЕ ЗАМЕНЫ ---"
-cat config.yaml
+# 4. Проверяем, есть ли критические ошибки
+if grep -q "ERROR" $REPORT; then
+  echo "СТАТУС: Обнаружены ошибки! Нужно проверить логи."
+else
+  echo "СТАТУС: Всё работает стабильно."
+fi
