@@ -1,18 +1,22 @@
 #!/bin/bash
 
-# Создаем наш лог снова (сделаем его чуть сложнее)
-echo "2023-10-01 10:00:01 INFO: System_started" > app.log
-echo "2023-10-01 10:05:23 WARNING: High_memory" >> app.log
-echo "2023-10-01 10:10:45 ERROR: Database_fail" >> app.log
+# 1. Создаем "конфиг" файл
+echo "server_address: localhost" > config.yaml
+echo "port: 8080" >> config.yaml
+echo "status: debug" >> config.yaml
 
-echo "--- ВЕСЬ ЛОГ ---"
-cat app.log
+echo "--- ФАЙЛ ДО ЗАМЕНЫ ---"
+cat config.yaml
 
-echo -e "\n--- ШАГ 1: Берем только ВРЕМЯ (2-я колонка) ---"
-awk '{print $2}' app.log
+# 2. Магия SED: меняем localhost на реальный адрес
+# s - значит substitute (заменить), /что/на что/
+sed -i 's/localhost/://production-server.com' config.yaml
 
-echo -e "\n--- ШАГ 2: Берем ТИП события (3-я колонка) ---"
-awk '{print $3}' app.log
+# 3. Еще одна замена: меняем режим с debug на active
+sed -i 's/debug/active/' config.yaml
 
-echo -e "\n--- ШАГ 3: Комбинируем (Время и Тип) ---"
-awk '{print "Событие [" $3 "] произошло в " $2}' app.log
+echo -e "\n--- ФАЙЛ ПОСЛЕ ЗАМЕНЫ ---"
+cat config.yaml
+
+echo -e "\n--- ИТОГО: ---"
+grep "server_address" config.yaml
